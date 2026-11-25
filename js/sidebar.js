@@ -1,0 +1,145 @@
+// Sidebar rendering. Every piece of article text is written with textContent
+// or as an attribute through the DOM API. Nothing here builds HTML strings,
+// so a title can never be read as markup.
+
+import { PHILOSOPHY, articleUrl } from './wiki.js';
+import { loopLabel } from './chains.js';
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function plural(count, one, many) {
+  return `${count} ${count === 1 ? one : many}`;
+}
+
+function statusLine(chain) {
+  const count = chain.steps.length;
+  switch (chain.status) {
+    case 'running': return count === 0 ? 'Looking it up…' : 'Following first links…';
+    case 'philosophy': return count === 1 ? 'This is Philosophy itself.' : `Reached Philosophy in ${plural(count - 1, 'click', 'clicks')}.`;
+    case 'loop': return `Stuck in a loop: ${loopLabel(chain.steps.slice(chain.loopAt).map((step) => step.title))}.`;
+    default: return chain.detail || 'Stopped.';
+  }
+}
+
+export function createSidebar({ listEl, emptyEl, outcomesEl, statsEl }, handlers) {
+  const cards = new Map();   // chain id -> { root, meta, status, steps, shown, retry, tail }
+
+  function buildCard(chain) {
+    const root = el('li', 'chain');
+    const head = el('div', 'chain-head');
+    const swatch = el('span', 'swatch');
+    swatch.style.backgroundColor = chain.color;
+    const title = el('span', 'chain-title', chain.start);
+    const meta = el('span', 'chain-meta');
+    const remove = el('button', 'chain-remove', '×');
+    remove.type = 'button';
+    remove.setAttribute('aria-label', `Remove the path from ${chain.start}`);
+    remove.addEventListener('click', () => handlers.onRemove(chain));
+    head.append(swatch, title, meta, remove);
+
+    const status = el('p', 'chain-status');
+    const retry = el('button', 'chain-retry', 'Try again');
+    retry.type = 'button';
+    retry.hidden = true;
+    retry.addEventListener('click', () => handlers.onRetry(chain));
+    const steps = el('ol', 'steps');
+    const tail = el('p', 'chain-tail');
+    tail.hidden = true;
+
+    root.append(head, status, retry, steps, tail);
+    root.addEventListener('mouseenter', () => handlers.onFocus(chain));
+    root.addEventListener('mouseleave', () => handlers.onFocus(null));
+    root.addEventListener('focusin', () => handlers.onFocus(chain));
+    root.addEventListener('focusout', () => handlers.onFocus(null));
+    return { root, meta, status, steps, retry, tail, shown: 0 };
+  }
+
+  function updateCard(card, chain) {
+    card.root.dataset.status = chain.status;
+    card.meta.textContent = chain.steps.length ? plural(chain.steps.length, 'article', 'articles') : '';
+    card.status.textContent = statusLine(chain);
+    card.retry.hidden = chain.status !== 'error';
+
+    // Steps only ever grow, so add the new ones instead of redrawing.
+    for (; card.shown < chain.steps.length; card.shown++) {
+      const step = chain.steps[card.shown];
+      const item = el('li', 'step');
+      const link = el('a', null, step.title);
+      link.href = articleUrl(step.title);
+      link.target = '_blank';
+      link.rel = 'noopener';
+      if (step.title === PHILOSOPHY) item.classList.add('is-philosophy');
+      item.append(link);
+      card.steps.append(item);
+    }
+    const items = card.steps.children;
+    for (let i = 0; i < items.length; i++) {
+      items[i].classList.toggle('in-loop', chain.loopAt !== -1 && i >= chain.loopAt);
+      items[i].classList.toggle('via-list', chain.steps[i].viaList === true);
+    }
+    if (chain.status === 'loop') {
+      card.tail.textContent = `↺ back to ${chain.steps[chain.loopAt].title}`;
+      card.tail.hidden = false;
+    } else {
+      card.tail.hidden = true;
+    }
+  }
+
+  function renderOutcomes(store) {
+    const { finished, philosophy, rows } = store.outcomes();
+    outcomesEl.hidden = finished === 0;
+    outcomesEl.replaceChildren();
+    if (finished === 0) return;
+    outcomesEl.append(el('h2', null, 'Where the paths end'));
+    outcomesEl.append(el('p', 'outcome-headline',
+      `${philosophy} of ${plural(finished, 'finished path', 'finished paths')} reached Philosophy.`));
+    const list = el('ul', 'outcome-list');
+    for (const row of rows) {
+      const item = el('li', 'outcome');
+      item.dataset.status = row.status;
+      const bar = el('span', 'outcome-bar');
+      bar.style.width = `${Math.round((row.count / finished) * 100)}%`;
+      item.append(el('span', 'outcome-count', String(row.count)), el('span', 'outcome-label', row.label), bar);
+      list.append(item);
+    }
+    outcomesEl.append(list);
+  }
+
+  function render(store, wikiStats) {
+    const seen = new Set();
+    for (const chain of store.chains) {
+      seen.add(chain.id);
+      let card = cards.get(chain.id);
+      if (!card) {
+        card = buildCard(chain);
+        cards.set(chain.id, card);
+        listEl.prepend(card.root);   // newest on top
+      }
+      updateCard(card, chain);
+    }
+    for (const [id, card] of cards) {
+      if (!seen.has(id)) { card.root.remove(); cards.delete(id); }
+    }
+    emptyEl.hidden = store.chains.length > 0;
+    renderOutcomes(store);
+
+    if (statsEl) {
+      const { nodes } = store.graph();
+      const shared = nodes.filter((node) => node.chains.size > 1).length;
+      const parts = [
+        plural(store.chains.length, 'path', 'paths'),
+        plural(nodes.length, 'article', 'articles'),
+        `${shared} shared`,
+      ];
+      if (wikiStats) parts.push(`${plural(wikiStats.requests, 'request', 'requests')} to Wikipedia`, `${wikiStats.cacheHits} answered from memory`);
+      statsEl.textContent = parts.join(' · ');
+    }
+  }
+
+  return { render };
+}

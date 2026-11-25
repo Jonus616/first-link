@@ -1,0 +1,9 @@
+body { font: 14px/1.5 system-ui, sans-serif; margin: 24px; color: #1d1b17; background: #fbf8f1; }
+h1 { font-size: 1.3rem; margin: 0 0 6px; }
+#summary { font-weight: 700; margin: 0 0 14px; }
+ol { list-style: none; padding: 0; margin: 0; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+.group { margin-top: 12px; font-weight: 700; font-family: system-ui, sans-serif; }
+.pass { color: #1f7a3d; }
+.fail { color: #b3261e; font-weight: 700; }
+.note { color: #6a6457; }
+.rig { height: 0; overflow: hidden; }

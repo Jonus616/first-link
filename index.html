@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; connect-src https://en.wikipedia.org; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta name="description" content="Follow the first link of any Wikipedia article and see where the path ends: Philosophy, a loop, or a dead end.">
+  <meta name="color-scheme" content="light dark">
+  <title>First Link: where Wikipedia paths end</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"
+          integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <aside class="panel" aria-label="Controls and paths">
+    <header class="masthead">
+      <p class="eyebrow">Wikipedia first-link explorer</p>
+      <h1>Where does the first link lead?</h1>
+      <p class="lede">Open any Wikipedia article and click its first real link. Keep going. The old claim is that you always arrive at Philosophy. Today many paths fall into a loop first. Trace a few and see.</p>
+    </header>
+
+    <form id="run-form" class="run" novalidate>
+      <label for="article">Article title or Wikipedia link</label>
+      <div class="run-row">
+        <input id="article" name="article" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="Jazz">
+        <button type="submit" class="primary">Trace</button>
+      </div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+      <p class="examples">
+        <span>Try</span>
+        <button type="button" data-example="Banana">Banana</button>
+        <button type="button" data-example="Jazz">Jazz</button>
+        <button type="button" data-example="Tallahassee, Florida">Tallahassee</button>
+        <button type="button" data-example="Mercury">Mercury</button>
+      </p>
+    </form>
+
+    <div class="toolbar">
+      <button type="button" id="wander" aria-pressed="false">Wander randomly</button>
+      <button type="button" id="copy-link" disabled>Copy link</button>
+      <button type="button" id="clear" disabled>Clear</button>
+    </div>
+
+    <section id="outcomes" class="outcomes" aria-live="polite" hidden></section>
+
+    <section class="paths" aria-label="Paths">
+      <h2>Paths</h2>
+      <p id="empty" class="empty">Nothing traced yet. Type an article above, pick an example, or let it wander.</p>
+      <ol id="chains" class="chains"></ol>
+    </section>
+
+    <footer class="foot">
+      <p id="stats"></p>
+      <p>Read live from English Wikipedia in your browser. Each article's first link is remembered on this device for 3 days, so repeat paths are instant.</p>
+    </footer>
+  </aside>
+
+  <main id="stage" class="stage">
+    <svg id="graph" role="img" aria-label="Map of the traced paths"></svg>
+    <p id="map-fallback" class="map-fallback" hidden>The map library did not load, so there is no picture. Paths still work and are listed in the panel.</p>
+
+    <ul id="legend" class="legend" hidden>
+      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="7" class="key-philosophy"/></svg>Philosophy</li>
+      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="6" class="key-loop"/></svg>Part of a loop</li>
+      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="4" class="key-plain"/><circle r="8" class="key-ring"/></svg>Starting article</li>
+      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="7" class="key-plain"/></svg>Bigger: more paths meet here</li>
+    </ul>
+
+    <div class="zoom" role="group" aria-label="Map zoom">
+      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
+      <button type="button" id="zoom-fit" aria-label="Fit the whole map">Fit</button>
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

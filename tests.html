@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; connect-src https://en.wikipedia.org; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>TESTS running</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/tests.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"
+          integrity="sha512-vc58qvvBdrDR4etbxMdlTt4GBQk1qjvyORR2nrsPsFPyrs+/u5c3+1Ct6upOgdZoIl7eq6k3a1UPDSNAQi/32A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script type="module" src="js/tests.js"></script>
+</head>
+<body>
+  <h1>First Link checks</h1>
+  <p id="summary">Running. The last group calls Wikipedia and takes about a minute.</p>
+  <ol id="results"></ol>
+
+  <div class="rig" aria-hidden="true">
+    <svg id="test-graph" width="600" height="400"></svg>
+    <svg id="test-graph-2" width="600" height="400"></svg>
+    <svg id="test-graph-3" width="600" height="400"></svg>
+    <div id="test-sidebar">
+      <div class="outcomes"></div>
+      <p class="empty"></p>
+      <ol class="chains"></ol>
+      <p class="stats"></p>
+    </div>
+  </div>
+</body>
+</html>
