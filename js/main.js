@@ -154,6 +154,16 @@ if (graph) {
   $('zoom-fit').addEventListener('click', () => graph.fit());
 }
 
+// Appearance: Automatic follows the device, Light and Dark are remembered.
+for (const radio of document.querySelectorAll('input[name="theme"]')) {
+  radio.checked = radio.value === (document.documentElement.dataset.theme || 'os');
+  radio.addEventListener('change', () => {
+    if (!radio.checked) return;
+    document.documentElement.dataset.theme = radio.value;
+    try { localStorage.setItem('first-link-theme', radio.value); } catch { /* not remembered, still applied */ }
+  });
+}
+
 window.addEventListener('pagehide', () => wiki.flush());
 
 // A share link opens with its paths already running.

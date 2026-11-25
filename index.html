@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; connect-src https://en.wikipedia.org; img-src 'self' data:; base-uri 'none'; form-action 'none'">
   <meta name="description" content="An unofficial parody tool: follow the first link of any Wikipedia article and see whether the path ends at Philosophy, in a loop, or at a dead end.">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>Getting to Philosophy - First Link (unofficial parody)</title>
+  <script src="js/theme.js"></script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"
@@ -20,14 +21,14 @@
   <header class="site-header">
     <a class="brand" href="./" aria-label="First Link, the free rabbit hole">
       <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
-        <circle cx="24" cy="24" r="22" fill="#fff" stroke="#54595d" stroke-width="1.5"/>
-        <path d="M11 33 L20 25 L15 14 L27 12" fill="none" stroke="#72777d" stroke-width="1.5"/>
-        <path d="M27 12 L35 22" fill="none" stroke="#72777d" stroke-width="1.5"/>
-        <circle cx="11" cy="33" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
-        <circle cx="20" cy="25" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
-        <circle cx="15" cy="14" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
-        <circle cx="27" cy="12" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
-        <circle cx="35" cy="24" r="5.5" fill="#fc3" stroke="#202122" stroke-width="1.5"/>
+        <circle cx="24" cy="24" r="22" class="mark-ring"/>
+        <path d="M11 33 L20 25 L15 14 L27 12" class="mark-line"/>
+        <path d="M27 12 L35 22" class="mark-line"/>
+        <circle cx="11" cy="33" r="3" class="mark-dot"/>
+        <circle cx="20" cy="25" r="3" class="mark-dot"/>
+        <circle cx="15" cy="14" r="3" class="mark-dot"/>
+        <circle cx="27" cy="12" r="3" class="mark-dot"/>
+        <circle cx="35" cy="24" r="5.5" class="mark-goal"/>
       </svg>
       <span class="brand-text">
         <span class="wordmark"><span class="cap">F</span>irst Lin<span class="cap">k</span></span>
@@ -86,6 +87,7 @@
         <ol id="chains" class="chains"></ol>
       </div>
 
+      <div class="side-column">
       <aside class="infobox" aria-label="Summary">
         <div class="infobox-title">Getting to Philosophy</div>
         <div id="outcomes" hidden></div>
@@ -97,6 +99,15 @@
           <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="7" class="key-plain"/></svg>Larger: more paths meet</li>
         </ul>
       </aside>
+
+      <fieldset class="appearance">
+        <legend>Appearance</legend>
+        <div class="appearance-group">Color</div>
+        <label><input type="radio" name="theme" value="os" checked> Automatic</label>
+        <label><input type="radio" name="theme" value="day"> Light</label>
+        <label><input type="radio" name="theme" value="night"> Dark</label>
+      </fieldset>
+      </div>
     </div>
   </main>
 

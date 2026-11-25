@@ -17,14 +17,58 @@
   --edge: #72777d;
   --yellow: #ffcc33;
   --error-bg: #ffe9e5;
+  --disabled: #a2a9b1;
   --focus: #3366cc;
   --serif: 'Linux Libertine', 'Georgia', 'Times', 'Source Serif 4', serif;
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Lato, Helvetica, Arial, sans-serif;
+  color-scheme: light;
+}
+
+/* Dark values are the ones Wikipedia's own stylesheet sets for its night
+   theme. They apply when Dark is chosen, or on Automatic when the device is
+   in dark mode. The two blocks below must stay identical. */
+
+:root[data-theme="night"] {
+  --text: #eaecf0;
+  --subtle: #a2a9b1;
+  --link: #88a3e8;
+  --link-hover: #a6bbf5;
+  --link-visited: #a799cd;
+  --link-red: #fd7865;
+  --page: #101418;
+  --bg-subtle: #202122;
+  --bg-neutral: #27292d;
+  --border: #72777d;
+  --border-subtle: #54595d;
+  --edge: #a2a9b1;
+  --error-bg: #3c1a13;
+  --disabled: #54595d;
+  --focus: #88a3e8;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="day"]):not([data-theme="night"]) {
+    --text: #eaecf0;
+    --subtle: #a2a9b1;
+    --link: #88a3e8;
+    --link-hover: #a6bbf5;
+    --link-visited: #a799cd;
+    --link-red: #fd7865;
+    --page: #101418;
+    --bg-subtle: #202122;
+    --bg-neutral: #27292d;
+    --border: #72777d;
+    --border-subtle: #54595d;
+    --edge: #a2a9b1;
+    --error-bg: #3c1a13;
+    --disabled: #54595d;
+    --focus: #88a3e8;
+    color-scheme: dark;
+  }
 }
 
 * { box-sizing: border-box; }
-
-html { color-scheme: light; }
 
 body {
   margin: 0;
@@ -77,6 +121,10 @@ button:disabled { cursor: default; }
 .brand:visited { color: var(--text); }
 .brand:hover { color: var(--text); text-decoration: none; }
 .brand-mark { width: 46px; height: 46px; flex: none; }
+.mark-ring { fill: var(--page); stroke: var(--subtle); stroke-width: 1.5; }
+.mark-line { fill: none; stroke: var(--edge); stroke-width: 1.5; }
+.mark-dot { fill: var(--page); stroke: var(--text); stroke-width: 1.5; }
+.mark-goal { fill: var(--yellow); stroke: var(--text); stroke-width: 1.5; }
 .brand-text { display: flex; flex-direction: column; align-items: center; line-height: 1; }
 
 .wordmark {
@@ -153,7 +201,7 @@ h2 { font-size: 1.5em; margin: 1em 0 0.6em; border-bottom: 1px solid var(--borde
   background: currentColor;
 }
 .tab.selected, .tab[aria-pressed="true"] { color: var(--text); }
-.tab:disabled { color: var(--border); }
+.tab:disabled { color: var(--disabled); }
 
 .site-sub { margin-top: 8px; font-size: 0.8125rem; color: var(--subtle); }
 
@@ -251,6 +299,14 @@ h2 { font-size: 1.5em; margin: 1em 0 0.6em; border-bottom: 1px solid var(--borde
 .key-loop { fill: var(--error-bg); stroke: var(--link-red); stroke-width: 2; stroke-dasharray: 3 2; }
 .key-philosophy { fill: var(--yellow); stroke: var(--text); stroke-width: 1.5; }
 
+/* Appearance panel */
+
+.appearance { margin: 1.2em 0 0; padding: 0; border: 0; font-size: 0.875rem; }
+.appearance legend { padding: 0; font-weight: 700; }
+.appearance-group { margin: 6px 0 4px; padding-bottom: 2px; color: var(--subtle); border-bottom: 1px solid var(--border-subtle); }
+.appearance label { display: flex; align-items: center; gap: 8px; padding: 3px 0; cursor: pointer; }
+.appearance input { margin: 0; width: 1.1em; height: 1.1em; accent-color: var(--link); }
+
 /* Paths, set like article sections */
 
 .empty { color: var(--subtle); }
@@ -279,7 +335,7 @@ h2 { font-size: 1.5em; margin: 1em 0 0.6em; border-bottom: 1px solid var(--borde
 .steps { display: flex; flex-wrap: wrap; }
 .step { overflow-wrap: anywhere; }
 .step + .step::before { content: "\2192"; margin: 0 0.4em; color: var(--subtle); }
-.step.is-philosophy a { font-weight: 700; background: var(--yellow); color: var(--text); padding: 0 4px; }
+.step.is-philosophy a { font-weight: 700; background: var(--yellow); color: #202122; padding: 0 4px; }
 .step.in-loop a { color: var(--link-red); }
 .step.via-list a::after { content: " (list entry)"; color: var(--subtle); font-size: 0.8em; }
 
@@ -334,7 +390,6 @@ h2 { font-size: 1.5em; margin: 1em 0 0.6em; border-bottom: 1px solid var(--borde
 @media (max-width: 900px) {
   .page-container { padding: 0 1rem; }
   .content { grid-template-columns: 1fr; }
-  .infobox { order: 2; }
 }
 
 @media (max-width: 560px) {
