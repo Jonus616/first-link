@@ -38,8 +38,11 @@ export function createGraph(svgElement, d3) {
   let follow = true;          // camera keeps the whole map in view until the visitor moves it
   let focusId = null;
 
+  // The page scrolls, so a plain wheel must scroll it. Zooming takes Ctrl or
+  // Cmd plus the wheel (which is also what a trackpad pinch sends).
   const zoom = d3.zoom()
     .scaleExtent([0.12, 4])
+    .filter((event) => !event.button && (event.type !== 'wheel' || event.ctrlKey || event.metaKey))
     .on('zoom', (event) => {
       if (event.sourceEvent) follow = false;
       viewport.attr('transform', event.transform);

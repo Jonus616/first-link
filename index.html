@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; connect-src https://en.wikipedia.org; img-src 'self' data:; base-uri 'none'; form-action 'none'">
-  <meta name="description" content="Follow the first link of any Wikipedia article and see where the path ends: Philosophy, a loop, or a dead end.">
-  <meta name="color-scheme" content="light dark">
-  <title>First Link: where Wikipedia paths end</title>
+  <meta name="description" content="An unofficial parody tool: follow the first link of any Wikipedia article and see whether the path ends at Philosophy, in a loop, or at a dead end.">
+  <meta name="color-scheme" content="light">
+  <title>Getting to Philosophy - First Link (unofficial parody)</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"
@@ -15,68 +15,97 @@
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
-<div class="app">
+<div class="page-container">
 
-  <aside class="panel" aria-label="Controls and paths">
-    <header class="masthead">
-      <p class="eyebrow">Wikipedia first-link explorer</p>
-      <h1>Where does the first link lead?</h1>
-      <p class="lede">Open any Wikipedia article and click its first real link. Keep going. The old claim is that you always arrive at Philosophy. Today many paths fall into a loop first. Trace a few and see.</p>
-    </header>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="First Link, the free rabbit hole">
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#fff" stroke="#54595d" stroke-width="1.5"/>
+        <path d="M11 33 L20 25 L15 14 L27 12" fill="none" stroke="#72777d" stroke-width="1.5"/>
+        <path d="M27 12 L35 22" fill="none" stroke="#72777d" stroke-width="1.5"/>
+        <circle cx="11" cy="33" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
+        <circle cx="20" cy="25" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
+        <circle cx="15" cy="14" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
+        <circle cx="27" cy="12" r="3" fill="#fff" stroke="#202122" stroke-width="1.5"/>
+        <circle cx="35" cy="24" r="5.5" fill="#fc3" stroke="#202122" stroke-width="1.5"/>
+      </svg>
+      <span class="brand-text">
+        <span class="wordmark"><span class="cap">F</span>irst Lin<span class="cap">k</span></span>
+        <span class="tagline">The Free Rabbit Hole</span>
+      </span>
+    </a>
 
-    <form id="run-form" class="run" novalidate>
-      <label for="article">Article title or Wikipedia link</label>
-      <div class="run-row">
-        <input id="article" name="article" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="Jazz">
-        <button type="submit" class="primary">Trace</button>
-      </div>
-      <p id="message" class="message" role="status" aria-live="polite"></p>
-      <p class="examples">
-        <span>Try</span>
-        <button type="button" data-example="Banana">Banana</button>
-        <button type="button" data-example="Jazz">Jazz</button>
-        <button type="button" data-example="Tallahassee, Florida">Tallahassee</button>
-        <button type="button" data-example="Mercury">Mercury</button>
-      </p>
+    <form id="run-form" class="search" role="search" novalidate>
+      <label for="article" class="visually-hidden">Article title or Wikipedia link</label>
+      <input id="article" name="article" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="Trace an article">
+      <button type="submit">Trace</button>
     </form>
+  </header>
 
-    <div class="toolbar">
-      <button type="button" id="wander" aria-pressed="false">Wander randomly</button>
-      <button type="button" id="copy-link" disabled>Copy link</button>
-      <button type="button" id="clear" disabled>Clear</button>
+  <main class="page">
+    <h1>Getting to Philosophy</h1>
+
+    <div class="tabs">
+      <ul class="tabs-left">
+        <li><a class="tab selected" href="#map">Map</a></li>
+        <li><a class="tab" href="#paths">Paths</a></li>
+      </ul>
+      <ul class="tabs-right">
+        <li><button type="button" class="tab" id="wander" aria-pressed="false">Wander</button></li>
+        <li><button type="button" class="tab" id="copy-link" disabled>Copy link</button></li>
+        <li><button type="button" class="tab" id="clear" disabled>Clear</button></li>
+      </ul>
     </div>
 
-    <section id="outcomes" class="outcomes" aria-live="polite" hidden></section>
+    <p class="site-sub">From First Link, an unofficial parody. Not a Wikimedia project.</p>
+    <p id="message" class="message" role="status" aria-live="polite"></p>
 
-    <section class="paths" aria-label="Paths">
-      <h2>Paths</h2>
-      <p id="empty" class="empty">Nothing traced yet. Type an article above, pick an example, or let it wander.</p>
-      <ol id="chains" class="chains"></ol>
-    </section>
+    <p class="hatnote">For a quick start, see
+      <button type="button" data-example="Banana">Banana</button>,
+      <button type="button" data-example="Jazz">Jazz</button>,
+      <button type="button" data-example="Tallahassee, Florida">Tallahassee</button> or
+      <button type="button" data-example="Mercury">Mercury</button>.</p>
 
-    <footer class="foot">
-      <p id="stats"></p>
-      <p>Read live from English Wikipedia in your browser. Each article's first link is remembered on this device for 3 days, so repeat paths are instant.</p>
-    </footer>
-  </aside>
+    <div class="content">
+      <div class="main-column">
+        <figure id="stage" class="thumb">
+          <div class="map-frame" id="map">
+            <svg id="graph" role="img" aria-label="Map of the traced paths"></svg>
+            <p id="map-fallback" class="map-fallback" hidden>The map library did not load. Paths still work and are listed below.</p>
+            <div class="zoom" role="group" aria-label="Map zoom">
+              <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+              <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
+              <button type="button" id="zoom-fit" aria-label="Fit the whole map">Fit</button>
+            </div>
+          </div>
+          <figcaption>Arrows follow each article's first link. Drag to move, Ctrl + scroll to zoom, click a dot to open its article.</figcaption>
+        </figure>
 
-  <main id="stage" class="stage">
-    <svg id="graph" role="img" aria-label="Map of the traced paths"></svg>
-    <p id="map-fallback" class="map-fallback" hidden>The map library did not load, so there is no picture. Paths still work and are listed in the panel.</p>
+        <h2 id="paths">Paths</h2>
+        <p id="empty" class="empty">No paths traced yet.</p>
+        <ol id="chains" class="chains"></ol>
+      </div>
 
-    <ul id="legend" class="legend" hidden>
-      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="7" class="key-philosophy"/></svg>Philosophy</li>
-      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="6" class="key-loop"/></svg>Part of a loop</li>
-      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="4" class="key-plain"/><circle r="8" class="key-ring"/></svg>Starting article</li>
-      <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="7" class="key-plain"/></svg>Bigger: more paths meet here</li>
-    </ul>
-
-    <div class="zoom" role="group" aria-label="Map zoom">
-      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
-      <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
-      <button type="button" id="zoom-fit" aria-label="Fit the whole map">Fit</button>
+      <aside class="infobox" aria-label="Summary">
+        <div class="infobox-title">Getting to Philosophy</div>
+        <div id="outcomes" hidden></div>
+        <div class="infobox-header">Map key</div>
+        <ul id="legend" class="legend">
+          <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="7" class="key-philosophy"/></svg>Philosophy</li>
+          <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="6" class="key-loop"/></svg>Part of a loop</li>
+          <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="4" class="key-plain"/><circle r="8" class="key-ring"/></svg>Starting article</li>
+          <li><svg viewBox="-10 -10 20 20" aria-hidden="true"><circle r="7" class="key-plain"/></svg>Larger: more paths meet</li>
+        </ul>
+      </aside>
     </div>
   </main>
+
+  <footer class="site-footer">
+    <ul>
+      <li>First Link is an unofficial parody and is not affiliated with or endorsed by the Wikimedia Foundation. Wikipedia is a trademark of the Wikimedia Foundation.</li>
+      <li>Article titles and links are read live from <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">English Wikipedia</a>, whose text is available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.</li>
+    </ul>
+  </footer>
 
 </div>
 </body>

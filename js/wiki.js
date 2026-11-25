@@ -91,7 +91,13 @@ export function parseInput(raw) {
 // Parses article HTML into an inert document and strips everything that is
 // not running text. DOMParser documents never run scripts or load images.
 export function parseArticle(html) {
-  const doc = new DOMParser().parseFromString(String(html), 'text/html');
+  // Wikipedia's HTML carries inline styles. They are useless here, and the
+  // page's Content Security Policy would log every one as a blocked style,
+  // so they are dropped before parsing.
+  const plain = String(html)
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<[a-zA-Z][^>]*>/g, (tag) => tag.replace(/\sstyle\s*=\s*("[^"]*"|'[^']*')/gi, ''));
+  const doc = new DOMParser().parseFromString(plain, 'text/html');
   const root = doc.querySelector('.mw-parser-output') || doc.body;
   root.querySelectorAll(JUNK).forEach((el) => el.remove());
   return root;

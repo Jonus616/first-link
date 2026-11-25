@@ -30,20 +30,21 @@ export function createSidebar({ listEl, emptyEl, outcomesEl, statsEl }, handlers
   const cards = new Map();   // chain id -> { root, meta, status, steps, shown, retry, tail }
 
   function buildCard(chain) {
+    // Laid out like an article section: heading, then a bracketed action
+    // where an encyclopedia would put its edit link.
     const root = el('li', 'chain');
-    const head = el('div', 'chain-head');
-    const swatch = el('span', 'swatch');
-    swatch.style.backgroundColor = chain.color;
+    const head = el('h3', 'chain-head');
     const title = el('span', 'chain-title', chain.start);
-    const meta = el('span', 'chain-meta');
-    const remove = el('button', 'chain-remove', '×');
+    const action = el('span', 'editsection');
+    const remove = el('button', 'chain-remove', 'remove');
     remove.type = 'button';
     remove.setAttribute('aria-label', `Remove the path from ${chain.start}`);
     remove.addEventListener('click', () => handlers.onRemove(chain));
-    head.append(swatch, title, meta, remove);
+    action.append(remove);
+    head.append(title, action);
 
     const status = el('p', 'chain-status');
-    const retry = el('button', 'chain-retry', 'Try again');
+    const retry = el('button', 'chain-retry', 'retry');
     retry.type = 'button';
     retry.hidden = true;
     retry.addEventListener('click', () => handlers.onRetry(chain));
@@ -56,12 +57,11 @@ export function createSidebar({ listEl, emptyEl, outcomesEl, statsEl }, handlers
     root.addEventListener('mouseleave', () => handlers.onFocus(null));
     root.addEventListener('focusin', () => handlers.onFocus(chain));
     root.addEventListener('focusout', () => handlers.onFocus(null));
-    return { root, meta, status, steps, retry, tail, shown: 0 };
+    return { root, status, steps, retry, tail, shown: 0 };
   }
 
   function updateCard(card, chain) {
     card.root.dataset.status = chain.status;
-    card.meta.textContent = chain.steps.length ? plural(chain.steps.length, 'article', 'articles') : '';
     card.status.textContent = statusLine(chain);
     card.retry.hidden = chain.status !== 'error';
 
@@ -95,19 +95,23 @@ export function createSidebar({ listEl, emptyEl, outcomesEl, statsEl }, handlers
     outcomesEl.hidden = finished === 0;
     outcomesEl.replaceChildren();
     if (finished === 0) return;
-    outcomesEl.append(el('h2', null, 'Where the paths end'));
-    outcomesEl.append(el('p', 'outcome-headline',
-      `${philosophy} of ${plural(finished, 'finished path', 'finished paths')} reached Philosophy.`));
-    const list = el('ul', 'outcome-list');
+    const table = el('table', 'tally');
+    const body = el('tbody');
     for (const row of rows) {
-      const item = el('li', 'outcome');
-      item.dataset.status = row.status;
-      const bar = el('span', 'outcome-bar');
-      bar.style.width = `${Math.round((row.count / finished) * 100)}%`;
-      item.append(el('span', 'outcome-count', String(row.count)), el('span', 'outcome-label', row.label), bar);
-      list.append(item);
+      const line = el('tr');
+      line.dataset.status = row.status;
+      const label = el('th', null, row.label);
+      label.scope = 'row';
+      line.append(label, el('td', null, String(row.count)));
+      body.append(line);
     }
-    outcomesEl.append(list);
+    const total = el('tr', 'tally-total');
+    const totalLabel = el('th', null, 'Reached Philosophy');
+    totalLabel.scope = 'row';
+    total.append(totalLabel, el('td', null, `${philosophy} of ${finished}`));
+    body.append(total);
+    table.append(body);
+    outcomesEl.append(el('div', 'infobox-header', 'Endings'), table);
   }
 
   function render(store, wikiStats) {

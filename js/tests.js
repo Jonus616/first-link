@@ -18,6 +18,12 @@ window.addEventListener('unhandledrejection', (event) => {
   uncaught.push('unhandledrejection: ' + (event.reason && event.reason.message ? event.reason.message : String(event.reason)));
 });
 
+// Anything the Content Security Policy blocks is counted, with where it came from.
+const blocked = [];
+document.addEventListener('securitypolicyviolation', (event) => {
+  blocked.push(`${event.violatedDirective} ${event.blockedURI} at ${String(event.sourceFile).split('/').pop()}:${event.lineNumber}`);
+});
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const withTimeout = (promise, ms) => Promise.race([
   promise,
@@ -107,6 +113,9 @@ await group('Link rule', async () => {
   same('returns nothing when there is no usable link', first('<p>Plain text only.</p>'), null);
   same('reads past headings wrapped in a div',
     first('<p>No links here.</p><div class="mw-heading mw-heading2"><h2>History</h2></div><p><a href="/wiki/Later">l</a></p>')?.next, 'Later');
+  const styled = parseArticle(article('<style>.x{color:red}</style><p style="color:red">A <span style=\'margin:0\'>b</span> <a href="/wiki/Kept" style="x:y" title="t">k</a></p>'));
+  same('inline styles are dropped before parsing, links survive',
+    [styled.querySelectorAll('[style], style').length, findFirstLink(styled, 'Foo')?.next], [0, 'Kept']);
   same('decodes encoded titles', first('<p><a href="/wiki/C%2B%2B">c</a></p>')?.next, 'C++');
   same('survives a malformed percent sign', first('<p><a href="/wiki/100%_Design">d</a></p>')?.next, '100% Design');
 });
@@ -345,6 +354,7 @@ await group('Live Wikipedia', async () => {
 await sleep(300);
 heading('Page health');
 same('no uncaught errors or rejections during the run', uncaught, []);
+same('nothing was blocked by the Content Security Policy', [blocked.length, [...new Set(blocked)].slice(0, 3)], [0, []]);
 
 summaryEl.textContent = `${passed} passed, ${failed} failed`;
 summaryEl.className = failed ? 'fail' : 'pass';

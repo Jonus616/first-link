@@ -33,13 +33,13 @@ if (!graph) {
 
 let focused = null;
 const sidebar = createSidebar(
-  { listEl: $('chains'), emptyEl: $('empty'), outcomesEl: $('outcomes'), statsEl: $('stats') },
+  { listEl: $('chains'), emptyEl: $('empty'), outcomesEl: $('outcomes'), statsEl: null },
   {
     onRemove: (chain) => store.remove(chain.id),
     onRetry: (chain) => { store.remove(chain.id); store.add(chain.start, { auto: chain.auto }); },
     onFocus: (chain) => {
       focused = chain ? chain.id : null;
-      if (graph) graph.setFocus(focused, chain ? chain.color : null);
+      if (graph) graph.setFocus(focused, null);
     },
   },
 );
@@ -59,7 +59,6 @@ store.subscribe(() => {
   }
   if (graph) graph.update(store.graph());
   sidebar.render(store, wiki.stats);
-  $('legend').hidden = store.chains.length === 0;
   $('clear').disabled = store.chains.length === 0;
   $('copy-link').disabled = store.chains.length === 0;
   syncHash();
@@ -108,7 +107,7 @@ function setWander(on) {
   wandering = on;
   const button = $('wander');
   button.setAttribute('aria-pressed', String(on));
-  button.textContent = on ? 'Stop wandering' : 'Wander randomly';
+  button.textContent = on ? 'Stop wandering' : 'Wander';
   if (on) wander(++wanderRun);
 }
 

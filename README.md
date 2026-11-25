@@ -5,6 +5,11 @@ where the path ends: Philosophy, a loop, or a dead end.
 
 Live: https://jonus616.github.io/first-link/
 
+The page is styled after Wikipedia's Vector 2022 skin as a labelled parody.
+It uses that skin's published colours and type with an original logo and
+wordmark. First Link is not affiliated with or endorsed by the Wikimedia
+Foundation. Wikipedia is a trademark of the Wikimedia Foundation.
+
 ## How it works
 
 - A static site with no build step and no server code. It reads English
@@ -25,7 +30,7 @@ Live: https://jonus616.github.io/first-link/
 
     python -m http.server 8801
 
-Then open http://localhost:8801 . Checks live at `/tests.html`.
+Then open http://localhost:8801 (hard-refresh after edits). Checks live at `/tests.html`.
 
 ## Files
 
